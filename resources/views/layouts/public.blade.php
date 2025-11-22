@@ -6,105 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Ganti 'Laravel' dengan nama app Anda --}}
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    {{-- Judul Halaman --}}
+    <title>{{ config('app.name', 'H2F Topup') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-    <!-- Scripts (Memuat Vite) -->
+    <!-- Scripts (Pastikan Vite berjalan) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-{{-- Latar belakang gelap dari desain Anda --}}
-<body class="font-sans antialiased bg-[#222327] text-gray-300">
+<body class="font-sans antialiased bg-[#181820] text-gray-300">
 
     {{-- 
-      NAVBAR KUSTOM (Berdasarkan Desain Anda)
-      Ini adalah mockup navbar dari gambar Anda.
-      Logo "T" dan ikon search (magnifying glass) menggunakan SVG.
+       NAVBAR
+       Parent menggunakan 'justify-between' untuk memisahkan 3 bagian (Kiri, Tengah, Kanan) secara merata.
     --}}
-    <nav class="bg-transparent backdrop-blur-sm border-b border-gray-700/50">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Bagian Kiri: Logo & Nav Links -->
-                <div class="flex items-center space-x-8">
-                    <!-- Logo 'T' -->
-                    <a href="/" class="flex-shrink-0 flex items-center">
-                        <span class="text-3xl font-bold text-yellow-400">H2F</span>
+    <nav class="bg-[#222327] border-b border-gray-800 h-16 sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+
+                <!-- BAGIAN 1: KIRI (Logo & Menu Navigasi) -->
+                <div class="flex items-center gap-8">
+                    {{-- Logo H2F --}}
+                    <a href="/" class="flex-shrink-0">
+                        <span class="text-3xl font-bold text-yellow-400 tracking-tighter">H2F</span>
                     </a>
 
-                    <!-- Nav Links (hidden di mobile) -->
-                    <div class="hidden md:flex items-center space-x-6">
-                        <a href="/" class="text-yellow-400 border-b-2 border-yellow-400 px-1 py-2 text-sm font-medium">Topup</a>
-                        <a href="#" class="text-gray-300 hover:text-white text-sm font-medium">Cek Transaksi</a>
-                        <a href="#" class="text-gray-300 hover:text-white text-sm font-medium">Leaderboard</a>
-                        <a href="#" class="text-gray-300 hover:text-white text-sm font-medium">Artikel</a>
-                        <a href="#" class="text-gray-300 hover:text-white text-sm font-medium">Kalkulator</a>
+                    {{-- Menu Links (Desktop) --}}
+                    <div class="hidden md:flex items-center gap-6">
+                        {{-- 
+                            LOGIKA ACTIVE STATE:
+                            Kita menggunakan request()->is('/') untuk mengecek URL.
+                            Jika aktif: class kuning + border bawah + padding tinggi (py-[1.3rem]) agar border menempel di bawah navbar.
+                            Jika tidak: class abu-abu + padding standar (py-2).
+                        --}}
+                        
+                        {{-- Menu 'Topup' --}}
+                        <a href="/" 
+                           class="{{ request()->is('/') ? 'text-yellow-400 border-b-2 border-yellow-400 py-[1.3rem] font-bold' : 'text-gray-300 hover:text-white py-2 font-medium' }} px-1 text-sm transition-colors">
+                            Topup
+                        </a>
+
+                        {{-- Menu 'Cek Transaksi' --}}
+                        <a href="/transaction/check" 
+                           class="{{ request()->is('transaction/check*') ? 'text-yellow-400 border-b-2 border-yellow-400 py-[1.3rem] font-bold' : 'text-gray-300 hover:text-white py-2 font-medium' }} px-1 text-sm transition-colors">
+                            Cek Transaksi
+                        </a>
                     </div>
                 </div>
 
-                <!-- Bagian Tengah: Search Bar (hidden di mobile) -->
+                <!-- BAGIAN 2: TENGAH (Search Bar) -->
+                {{-- flex-1 agar mengisi ruang kosong, max-w-xl membatasi lebar agar tidak terlalu panjang --}}
                 <div class="hidden md:flex flex-1 justify-center px-8">
-                    <div class="relative w-full max-w-md">
+                    <div class="w-full max-w-lg relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
                         <input
-                            class="block w-full pl-10 pr-3 py-2 bg-[#3A3B3F] border border-transparent rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-yellow-400 sm:text-sm"
-                            placeholder="Cari Game atau Voucher" type="search">
+                            type="text"
+                            class="block w-full pl-10 pr-4 py-2.5 bg-[#33343a] border-none rounded-lg text-gray-200 placeholder-gray-500 focus:ring-1 focus:ring-gray-500 sm:text-sm"
+                            placeholder="Cari Game atau Voucher"
+                        >
                     </div>
                 </div>
 
-                <!-- Bagian Kanan: Auth Links -->
-                <div class="flex items-center space-x-4">
-                    {{-- 
-                      Tampilkan link 'Masuk' dan 'Daftar' jika pengguna adalah tamu (belum login).
-                      Ini menggunakan Blade directive '@guest'
-                    --}}
-                    @guest
-                        <a href="{{ route('login') }}" class="text-gray-300 hover:text-white text-sm font-medium">Masuk</a>
-                        <a href="{{ route('register') }}" class="text-gray-300 hover:text-white text-sm font-medium">Daftar</a>
-                    @endguest
-
-                    {{-- 
-                      Tampilkan link ke 'Dashboard' jika pengguna sudah login.
-                      Ini menggunakan Blade directive '@auth'
-                    --}}
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="text-gray-300 hover:text-white text-sm font-medium">Dashboard</a>
-                    @endauth
+                <!-- BAGIAN 3: KANAN (Auth & ID/IDR) -->
+                {{-- justify-end memastikan elemen ini menempel ke kanan --}}
+                <div class="flex items-center justify-end gap-4 sm:gap-6">
                     
-                    <span class="text-gray-500">|</span>
-                    <button class="flex items-center text-gray-300 hover:text-white text-sm font-medium">
+                    {{-- Group Login/Register --}}
+                    <div class="flex items-center gap-4">
+                        @guest
+                            <a href="{{ route('login') }}" class="text-gray-300 hover:text-white text-sm font-bold transition-colors">
+                                Masuk
+                            </a>
+                            <a href="{{ route('register') }}" class="text-gray-300 hover:text-white text-sm font-bold transition-colors">
+                                Daftar
+                            </a>
+                        @endguest
+
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="text-gray-300 hover:text-white text-sm font-bold">
+                                Dashboard
+                            </a>
+                        @endauth
+                    </div>
+
+                    {{-- Separator Garis Vertikal --}}
+                    <div class="h-4 w-px bg-gray-600"></div>
+
+                    {{-- ID / IDR Dropdown --}}
+                    <button class="flex items-center text-gray-300 hover:text-white text-sm font-bold gap-2 transition-colors">
                         <span>ID / IDR</span>
-                        {{-- Ikon chevron down --}}
-                        <svg class="w-4 h-4 ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                 </div>
+
             </div>
         </div>
     </nav>
 
-    <!-- Konten Halaman -->
+    <!-- Konten Utama -->
     <main>
-        {{-- Di sinilah konten dari 'index.blade.php' akan disuntikkan --}}
         @yield('content')
     </main>
-
-    {{-- 
-      Anda bisa menambahkan footer kustom di sini jika perlu
-      <footer class="bg-gray-800 mt-12 py-8">
-          <div class="container mx-auto px-4">
-              <p class="text-center text-gray-400 text-sm">&copy; 2025 NamaPerusahaanAnda. All rights reserved.</p>
-          </div>
-      </footer>
-    --}}
 
 </body>
 </html>

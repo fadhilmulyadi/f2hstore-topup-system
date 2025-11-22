@@ -50,7 +50,7 @@
                     </x-dropdown>
                 </div>
             @else 
-            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+            <div class="hidden sm:flex sm:items-center mr-auto space-x-4">
                     <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">Log in</a>
                     <a href="{{ route('register') }}" class="text-sm text-gray-700 underline">Register</a>
                 </div>
