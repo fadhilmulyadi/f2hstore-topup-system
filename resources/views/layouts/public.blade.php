@@ -31,7 +31,7 @@
                 <div class="flex items-center gap-8">
                     {{-- Logo H2F --}}
                     <a href="/" class="flex-shrink-0">
-                        <span class="text-3xl font-bold text-yellow-400 tracking-tighter">H2F</span>
+                        <span class="text-3xl font-bold text-yellow-400 tracking-tighter">F2H</span>
                     </a>
 
                     {{-- Menu Links (Desktop) --}}
