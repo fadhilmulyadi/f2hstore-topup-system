@@ -16,13 +16,11 @@ Dokumentasi resmi endpoint Backend untuk integrasi Frontend.
 
 📋 Daftar Isi
 
-Games (Kategori)
+1. Games (Kategori)
+2. Products (Item Produk)
+3. Transactions (Transaksi)
 
-Products (Item Produk)
-
-Transactions (Transaksi)
-
-1. 🎮 Games (Kategori)
+# 1. 🎮 Games (Kategori)
 
 Mengelola data kategori game (Mobile Legends, PUBG, dll).
 
@@ -30,8 +28,9 @@ GET /games
 
 Mengambil daftar semua game untuk ditampilkan di halaman Home.
 
-Response Sukses (200 OK):
+### Response Sukses (200 OK):
 
+```json
 {
     "success": true,
     "message": "List of games retrieved successfully",
@@ -44,7 +43,7 @@ Response Sukses (200 OK):
         }
     ]
 }
-
+```
 
 POST /games
 
@@ -55,7 +54,7 @@ POST /games
 | `name` | Text | Ya | Nama Game (Contoh: "Genshin Impact") |
 | `thumbnail` | File | Ya | Format: jpg, png, jpeg (Max 2MB) |
 
-1. 💎 Products (Item Produk)
+# 2. 💎 Products (Item Produk)
 
 Mengelola item dagangan (100 Diamond, Pulsa 50k, dll).
 
@@ -63,8 +62,8 @@ GET /products
 
 Mengambil semua produk beserta info gamenya.
 
-Response Sukses (200 OK):
-
+### Response Sukses (200 OK):
+```json
 {
     "success": true,
     "message": "List of products retrieved successfully",
@@ -82,7 +81,7 @@ Response Sukses (200 OK):
         }
     ]
 }
-
+```
 
 POST /products
 
@@ -94,7 +93,7 @@ POST /products
 | `name` | Text | Ya | Nama Item (Contoh: "Starlight Member") |
 | `price` | Int | Ya | Harga (Contoh: 150000) |
 | `sku` | Text | Tidak | Kode unik barang |
-1. 💳 Transactions (Transaksi)
+# 3. 💳 Transactions (Transaksi)
 
 Inti dari sistem jual beli.
 
@@ -108,18 +107,21 @@ User melakukan checkout barang (Membuat pesanan baru).
 | `target_account` | Text | Ya | ID Game User / No HP Tujuan |
 | `payment_method` | Text | Ya | Contoh: "BCA", "DANA", "GOPAY" |
 
-Response Sukses (201 Created):
+### Response (200 OK)
 
+```json
 {
     "success": true,
-    "message": "Transaction created successfully",
-    "data": {
-        "id": 55,
-        "status": "pending",
-        "total_price": 30000,
-        "created_at": "2025-11-23T10:00:00.000000Z"
-    }
+    "message": "List of games retrieved successfully",
+    "data": [
+        {
+            "id": 1,
+            "name": "Mobile Legends",
+            "slug": "mobile-legends"
+        }
+    ]
 }
+```
 
 PUT /transactions/{id}
 
@@ -127,12 +129,13 @@ PUT /transactions/{id}
 
 🔔 FITUR OTOMATIS: > Jika status diubah menjadi success, sistem akan otomatis mengirim WhatsApp Notifikasi ke nomor HP pembeli.
 
-Body Request (JSON):
+### Body Request (JSON):
 
+```json
 {
     "status": "success"
 }
-
+```
 
 Pilihan status: pending, processing, success, failed.
 
