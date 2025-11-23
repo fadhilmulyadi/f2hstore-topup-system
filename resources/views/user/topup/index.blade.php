@@ -18,7 +18,7 @@
           Ini adalah gambar banner hero Anda.
           Pastikan path-nya sesuai: public/images/hero/user-index-banner.jpg
         --}}
-        <img src="{{ asset('images/hero/user-index-banner.jpg') }}" alt="Hero Banner HLMNPEDIA"
+        <img src="{{ asset('images/hero/user-index-banner.jpg') }}" alt="Hero Banner F2H"
             class="w-full h-auto object-cover">
     </div>
 

@@ -43,19 +43,34 @@ class GameController extends Controller
         ], 201);
     }
 
-    public function show(string $id)
-    {
-        $game = Game::find($id);
+    // public function show(string $id)
+    // {
+    //     $game = Game::find($id);
 
-        if (!$game) {
-            return response()->json(['message' => 'Game not found'], 404);
-        }
+    //     if (!$game) {
+    //         return response()->json(['message' => 'Game not found'], 404);
+    //     }
 
-        return response()->json([
-            'success' => true,
-            'data'    => $game
-        ]);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'data'    => $game
+    //     ]);
+    // }
+
+    public function show($slug)
+{
+    // // Cek 1: Apakah route berhasil masuk sini?
+    // dd($slug); // <--- Hapus komentar (//) di depan dd ini lalu refresh browser.
+    //             //  Jika browser menampilkan layar hitam bertuliskan "mobile-legends", 
+    //             //  berarti Route AMAN. Masalahnya ada di Database.
+
+    // Cek 2: Query Database
+    $game = Game::where('slug', $slug)->with('products')->firstOrFail();
+    
+    return view('user.topup.show', [
+        'game' => $game
+    ]);
+}
 
     public function update(Request $request, string $id)
     {
