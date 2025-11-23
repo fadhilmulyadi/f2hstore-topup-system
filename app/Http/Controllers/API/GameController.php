@@ -3,56 +3,111 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Game; // <-- IMPORT MODEL GAME
+use App\Models\Game;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class GameController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // Ambil semua data game, urutkan berdasarkan nama
         $games = Game::orderBy('name', 'asc')->get();
 
-        // Kembalikan data sebagai JSON
         return response()->json([
             'success' => true,
-            'message' => 'Daftar data game (kategori)',
+            'message' => 'List of games retrieved successfully',
             'data'    => $games
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Nanti kita isi untuk 'CREATE' data
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+
+        $game = Game::create([
+            'name'      => $request->name,
+            'slug'      => Str::slug($request->name),
+            'thumbnail' => $thumbnailPath,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Game created successfully',
+            'data'    => $game
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        // Nanti kita isi untuk 'GET' 1 data
+        $game = Game::find($id);
+
+        if (!$game) {
+            return response()->json(['message' => 'Game not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $game
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
-        // Nanti kita isi untuk 'UPDATE' data
+        $game = Game::find($id);
+
+        if (!$game) {
+            return response()->json(['message' => 'Game not found'], 404);
+        }
+
+        $request->validate([
+            'name'      => 'nullable|string|max:255',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('thumbnail')) {
+            if ($game->thumbnail && Storage::disk('public')->exists($game->thumbnail)) {
+                Storage::disk('public')->delete($game->thumbnail);
+            }
+            $game->thumbnail = $request->file('thumbnail')->store('thumbnails', 'public');
+        }
+
+        if ($request->name) {
+            $game->name = $request->name;
+            $game->slug = Str::slug($request->name);
+        }
+
+        $game->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Game updated successfully',
+            'data'    => $game
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        // Nanti kita isi untuk 'DELETE' data
+        $game = Game::find($id);
+
+        if (!$game) {
+            return response()->json(['message' => 'Game not found'], 404);
+        }
+
+        if ($game->thumbnail && Storage::disk('public')->exists($game->thumbnail)) {
+            Storage::disk('public')->delete($game->thumbnail);
+        }
+
+        $game->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Game deleted successfully'
+        ]);
     }
 }
