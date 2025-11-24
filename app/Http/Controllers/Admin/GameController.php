@@ -18,8 +18,9 @@ class GameController extends Controller
         $totalProducts = Product::count();
 
         // Kirim variabel ke view
-        return view('admin.dashboard', compact('totalGames', 'totalProducts'));
         return view('admin.game.index', compact('games'));
+        return view('admin.dashboard', compact('totalGames', 'totalProducts'));
+        
     }
 
     public function create()
@@ -47,7 +48,7 @@ class GameController extends Controller
             'thumbnail' => $path,
         ]);
 
-        return redirect()->route('game.index')->with('success', 'Game berhasil ditambahkan!');
+        return redirect()->route('admin.game.index')->with('success', 'Game berhasil ditambahkan!');
     }
 
     public function edit($id)
@@ -82,7 +83,7 @@ class GameController extends Controller
 
         $game->update($data);
 
-        return redirect()->route('game.index')->with('success', 'Game berhasil diperbarui!');
+        return redirect()->route('admin.game.index')->with('success', 'Game berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -95,6 +96,6 @@ class GameController extends Controller
 
         $game->delete();
 
-        return redirect()->route('game.index')->with('success', 'Game berhasil dihapus!');
+        return redirect()->route('admin.game.index')->with('success', 'Game berhasil dihapus!');
     }
 }

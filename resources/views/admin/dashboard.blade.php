@@ -9,7 +9,7 @@
     <div class="bg-indigo-600 rounded-2xl p-6 mb-8 text-white shadow-lg shadow-indigo-200 flex flex-col md:flex-row items-center justify-between">
         <div>
             <h2 class="text-2xl font-bold mb-1">Halo, Admin! 👋</h2>
-            <p class="text-indigo-100 text-sm opacity-90">Selamat datang kembali di panel kontrol Takapedia.</p>
+            <p class="text-indigo-100 text-sm opacity-90">Selamat datang kembali di panel kontrol F2H.</p>
         </div>
         
         {{-- Flex Container untuk Tombol --}}
