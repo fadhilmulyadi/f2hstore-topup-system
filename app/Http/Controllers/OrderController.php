@@ -24,7 +24,7 @@ class OrderController extends Controller
         // 3. Kirim data $game ke View (Tampilan)
         // PENTING: Tanya Agil, nama file blade untuk detail game-nya apa?
         // Disini saya asumsikan namanya 'pages.order.detail'
-        return view('pages.topup.detail', [
+        return view('user.topup.show', [
             'game' => $game
         ]);
     }

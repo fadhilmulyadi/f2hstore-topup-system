@@ -3,22 +3,45 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <div class="shrink-0 flex items-center">
-                    {{-- Ganti route('dashboard') menjadi route('/') untuk homepage --}}
-                    <a href="{{ route('/') }}"> 
+                    <a href="{{ url('/') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                    {{-- Anda bisa tambahkan link lain di sini --}}
+                    @auth
+                        @if(Auth::user()->role === 'admin')
+                            {{-- KHUSUS ADMIN: Tampilkan Link ke Admin Panel --}}
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                                {{ __('Admin Panel') }}
+                            </x-nav-link>
+                        @else
+                            {{-- KHUSUS USER BIASA: Tampilkan Link Belanja/Home --}}
+                            <x-nav-link :href="url('/')" :active="request()->fullUrl() === url('/')">
+                                {{ __('Belanja') }}
+                            </x-nav-link>
+                        @endif
+                    @else
+                        {{-- KALAU BELUM LOGIN (GUEST): Tampilkan Link Home --}}
+                        <x-nav-link :href="url('/')" :active="request()->fullUrl() === url('/')">
+                            {{ __('Home') }}
+                        </x-nav-link>
+                    @endauth
                 </div>
             </div>
 
-            @auth
-                <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                @auth
+                    {{-- 1. TOMBOL LOGOUT LANGSUNG (VISIBLE) --}}
+                    {{-- Tombol ini muncul di luar dropdown agar lebih cepat diakses --}}
+                    <form method="POST" action="{{ route('logout') }}" class="mr-4">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:border-red-700 focus:ring ring-red-300 disabled:opacity-25 transition ease-in-out duration-150">
+                            {{ __('Log Out') }}
+                        </button>
+                    </form>
+
+                    {{-- 2. DROPDOWN NAMA USER --}}
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
@@ -36,10 +59,10 @@
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
-
+                            
+                            {{-- Opsi Logout duplikat di dalam dropdown (opsional, bisa dihapus jika ingin tombol merah saja) --}}
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-
                                 <x-dropdown-link :href="route('logout')"
                                         onclick="event.preventDefault();
                                                     this.closest('form').submit();">
@@ -48,13 +71,13 @@
                             </form>
                         </x-slot>
                     </x-dropdown>
-                </div>
-            @else 
-            <div class="hidden sm:flex sm:items-center mr-auto space-x-4">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">Log in</a>
-                    <a href="{{ route('register') }}" class="text-sm text-gray-700 underline">Register</a>
-                </div>
-            @endauth
+                @else
+                    <div class="space-x-4">
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900 font-medium">Log in</a>
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition">Register</a>
+                    </div>
+                @endauth
+            </div>
 
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
@@ -69,13 +92,25 @@
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            @auth
+                @if(Auth::user()->role === 'admin')
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                        {{ __('Admin Panel') }}
+                    </x-responsive-nav-link>
+                @else
+                    <x-responsive-nav-link :href="url('/')" :active="request()->fullUrl() === url('/')">
+                        {{ __('Belanja') }}
+                    </x-responsive-nav-link>
+                @endif
+            @else
+                <x-responsive-nav-link :href="url('/')" :active="request()->fullUrl() === url('/')">
+                    {{ __('Home') }}
+                </x-responsive-nav-link>
+            @endauth
         </div>
 
-        @auth
-            <div class="pt-4 pb-1 border-t border-gray-200">
+        <div class="pt-4 pb-1 border-t border-gray-200">
+            @auth
                 <div class="px-4">
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
@@ -88,7 +123,6 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-
                         <x-responsive-nav-link :href="route('logout')"
                                 onclick="event.preventDefault();
                                             this.closest('form').submit();">
@@ -96,10 +130,8 @@
                         </x-responsive-nav-link>
                     </form>
                 </div>
-            </div>
-        @else
-            <div class="pt-4 pb-1 border-t border-gray-200">
-                <div class="space-y-1">
+            @else
+                <div class="mt-3 space-y-1">
                     <x-responsive-nav-link :href="route('login')">
                         {{ __('Log In') }}
                     </x-responsive-nav-link>
@@ -107,7 +139,7 @@
                         {{ __('Register') }}
                     </x-responsive-nav-link>
                 </div>
-            </div>
-        @endauth
+            @endauth
+        </div>
     </div>
 </nav>
