@@ -47,6 +47,7 @@ Route::get('/transactions', [TransactionController::class, 'index'])
     ->name('transaction.index');
 
 Route::get('/invoice/{payment_token}', [TransactionController::class, 'show'])->name('transaction.show');
+Route::view('/transaction/check', 'user.transaction.check');
 
 
 require __DIR__ . '/auth.php';
