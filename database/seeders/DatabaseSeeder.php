@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // TAMBAHKAN BARIS INI:
         $this->call([
             GameSeeder::class,
+            UserSeeder::class
         ]);
     }
 }

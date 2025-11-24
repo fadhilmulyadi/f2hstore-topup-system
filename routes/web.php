@@ -67,8 +67,8 @@ Route::prefix('admin')        // URL jadi: website.com/admin/game
 // 4. DETAIL GAME (Halaman pilih produk)
 Route::get('/game/{slug}', [OrderController::class, 'show'])->name('order.show');
 
-// 5. PROSES BELI (Saat klik tombol "Beli Sekarang")
-Route::post('/checkout', [TransactionController::class, 'store'])->name('transaction.store');
+// 5. PROSES BELI (Saat klik tombol "Beli Sekarang") //hanya user yang boleh beli atau top up 
+Route::post('/checkout', [TransactionController::class, 'store'])->middleware(['auth'])->name('transaction.store');
 
 // 6. HISTORY & INVOICE
 Route::get('/transactions', [TransactionController::class, 'index'])
@@ -76,7 +76,8 @@ Route::get('/transactions', [TransactionController::class, 'index'])
     ->name('transaction.index');
 
 Route::get('/invoice/{payment_token}', [TransactionController::class, 'show'])->name('transaction.show');
-Route::view('/transaction/check', 'user.transaction.check');
+// Route::view('/transaction/check', 'user.transaction.check');
+Route::get('/transaction/check', [TransactionController::class, 'check'])->name('transaction.check');
 
 
 require __DIR__ . '/auth.php';

@@ -11,61 +11,91 @@ use Illuminate\Support\Str;
 class TransactionController extends Controller
 {
     /**
-     * LOGIC 1: HALAMAN LIHAT TRANSAKSI (HISTORY)
-     * Menampilkan daftar transaksi milik user yang sedang login.
+     * FITUR BARU: CEK TRANSAKSI & SEARCH
+     * - Tamu: Cuma bisa search invoice.
+     * - Member: Bisa liat history sendiri di tabel bawah.
+     */
+    public function check(Request $request)
+    {
+        // 1. LOGIKA PENCARIAN (Tetap Sama)
+        if ($request->has('invoice') && $request->invoice != null) {
+            // Cari transaksi berdasarkan Invoice ID
+            $transaction = Transaction::where('payment_token', $request->invoice)->first();
+
+            if ($transaction) {
+                // Jika ketemu, arahkan ke struk
+                return redirect()->route('transaction.show', $transaction->payment_token);
+            } else {
+                // Jika tidak ketemu, error
+                return back()->with('error', 'Nomor Invoice tidak ditemukan!');
+            }
+        }
+
+        // 2. LOGIKA TABEL BAWAH (DIBUAT PRIVAT)
+        $myTransactions = []; // Default kosong buat tamu (Sesuai request Agil)
+
+        if (Auth::check()) {
+            // Kalau user LOGIN, baru kita ambil datanya
+            $myTransactions = Transaction::where('user_id', Auth::id())
+                ->with('product.game')
+                ->orderBy('created_at', 'desc')
+                ->take(10) // Tampilkan 10 terakhir saja
+                ->get();
+        }
+
+        // Kirim variabel $myTransactions ke view
+        return view('user.transaction.check', compact('myTransactions'));
+    }
+
+    /**
+     * LOGIC 1: HALAMAN LIHAT TRANSAKSI (HISTORY FULL)
+     * Dipakai di menu "History Transaksi" (jika ada)
      */
     public function index()
     {
-        // Ambil transaksi milik user, urutkan dari yang terbaru
         $transactions = Transaction::where('user_id', Auth::id())
-            ->with('product.game') // Load data produk & game biar lengkap
+            ->with('product.game')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Kirim ke tampilan (sesuaikan nama file blade Agil)
         return view('user.transaction.index', compact('transactions'));
     }
 
     /**
      * LOGIC 2: PROSES BELI (STORE)
-     * Dipanggil saat user klik tombol "Bayar" / "Checkout"
+     * Dipakai saat klik tombol "Beli Sekarang"
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input dari Form Agil
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'target_account' => 'required|string', // ID Game / No HP
-            'payment_method' => 'required|string', // BCA, GOPAY, dll
+            'target_account' => 'required|string',
+            'payment_method' => 'required|string',
         ]);
 
-        // 2. Ambil info produk (untuk harga)
         $product = Product::find($request->product_id);
 
-        // 3. Simpan Transaksi ke Database
+        // SIMPAN TRANSAKSI
         $transaction = Transaction::create([
-            'user_id' => Auth::id() ?? 1, // Default ID 1 jika belum login
+            'user_id' => Auth::id(),
             'product_id' => $product->id,
             'target_account' => $request->target_account,
             'total_price' => $product->price,
-            'status' => 'pending', // Status awal
+            'status' => 'pending',
             'payment_method' => $request->payment_method,
-            'payment_token' => 'INV-' . Str::upper(Str::random(10)), // Kode unik invoice
+            'payment_token' => 'INV-' . Str::upper(Str::random(10)),
         ]);
 
-        // 4. Arahkan user ke halaman "Sukses/Detail Transaksi"
-        // Kita redirect ke route 'transaction.show' membawa ID transaksi
         return redirect()->route('transaction.show', $transaction->payment_token)
             ->with('success', 'Pesanan berhasil dibuat!');
     }
 
     /**
      * LOGIC 3: DETAIL / STRUK TRANSAKSI
-     * Menampilkan detail satu transaksi setelah beli
+     * Dipakai setelah beli atau saat cek invoice
      */
     public function show($payment_token)
     {
-        // Cari transaksi berdasarkan payment_token (Invoice ID)
         $transaction = Transaction::where('payment_token', $payment_token)
             ->with(['product.game', 'user'])
             ->firstOrFail();
