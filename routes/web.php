@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Game;
+use App\Models\Product;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;       // Controller Detail Game
 use App\Http\Controllers\TransactionController; // Controller Logic Beli (YANG TADI HILANG)
+use App\Http\Controllers\Admin\GameController as AdminGameController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +23,12 @@ Route::get('/', function () {
     return view('user.topup.index', compact('games'));
 });
 
-// 2. DASHBOARD USER (Breeze)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// // 2. DASHBOARD USER (Breeze)
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+
 
 // 3. PROFILE USER (Breeze)
 Route::middleware('auth')->group(function () {
@@ -30,6 +36,29 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// ==========================================
+// 2. ROUTE ADMIN (Khusus Pengelola)
+// ==========================================
+Route::prefix('admin')        // URL jadi: website.com/admin/game
+    ->name('admin.')          // Nama route jadi: admin.game.index
+    ->middleware(['auth', 'admin'])    // Wajib Login
+    ->group(function () {
+        
+        Route::get('/dashboard', function () {
+            $totalGames = Game::count();
+            $totalProducts = Product::count();
+            
+            return view('admin.dashboard', compact('totalGames', 'totalProducts'));
+        })->name('dashboard');
+
+        // CRUD Game
+        // Karena pakai alias di atas, panggilnya AdminGameController
+        Route::resource('game', AdminGameController::class);
+        
+        // CRUD Produk
+        Route::resource('produk', AdminProductController::class);
+    });
 
 // ========================================================
 // 🔥 ROUTE YANG TADI HILANG (WAJIB ADA)
