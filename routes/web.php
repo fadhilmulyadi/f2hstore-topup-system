@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Game;
 use App\Models\Product;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\OrderController;       // Controller Detail Game
-use App\Http\Controllers\TransactionController; // Controller Logic Beli (YANG TADI HILANG)
+use App\Http\Controllers\OrderController;       
+use App\Http\Controllers\TransactionController; 
+use App\Http\Controllers\Admin\TransactionController as AdminTransactionController; 
 use App\Http\Controllers\Admin\GameController as AdminGameController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
@@ -29,7 +30,6 @@ Route::get('/', function () {
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-
 // 3. PROFILE USER (Breeze)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -44,18 +44,18 @@ Route::prefix('admin')        // URL jadi: website.com/admin/game
     ->name('admin.')          // Nama route jadi: admin.game.index
     ->middleware(['auth', 'admin'])    // Wajib Login
     ->group(function () {
-        
+
         Route::get('/dashboard', function () {
             $totalGames = Game::count();
             $totalProducts = Product::count();
-            
+
             return view('admin.dashboard', compact('totalGames', 'totalProducts'));
         })->name('dashboard');
 
         // CRUD Game
         // Karena pakai alias di atas, panggilnya AdminGameController
         Route::resource('game', AdminGameController::class);
-        
+
         // CRUD Produk
         Route::resource('produk', AdminProductController::class);
     });
@@ -76,8 +76,11 @@ Route::get('/transactions', [TransactionController::class, 'index'])
     ->name('transaction.index');
 
 Route::get('/invoice/{payment_token}', [TransactionController::class, 'show'])->name('transaction.show');
+
+
 // Route::view('/transaction/check', 'user.transaction.check');
 Route::get('/transaction/check', [TransactionController::class, 'check'])->name('transaction.check');
 
-
+// Admin bisa lihat daftar dan update status jadi success (Trigger WA)
+Route::resource('transaction', AdminTransactionController::class)->only(['index', 'update']);
 require __DIR__ . '/auth.php';
