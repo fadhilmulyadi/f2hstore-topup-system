@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\API\GameController;
+use App\Http\Controllers\API\OrderController;
 use Illuminate\Support\Facades\Route;
-
 
 
 Route::get('/', function () {
@@ -30,5 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Route untuk halaman detail game (misal: f2hstore.test/game/mobile-legends)
+Route::get('/game/{slug}', [OrderController::class, 'show'])->name('order.show');
 
 require __DIR__.'/auth.php';
