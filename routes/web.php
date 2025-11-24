@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController; // Pastikan Controller ini di-import
+use App\Http\Controllers\GameController; // Controller Public/User
+use App\Http\Controllers\Admin\GameController as AdminGameController; // Controller Admin (Kasih alias biar gak error)
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,10 +25,32 @@ Route::get('/', function () {
     return view('user.topup.index', compact('games')); 
 });
 
-// Halaman Dashboard (Breeze default)
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    if (auth()->user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    return redirect('/');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// ==========================================
+// 2. ROUTE ADMIN (Khusus Pengelola)
+// ==========================================
+Route::prefix('admin')        // URL jadi: website.com/admin/game
+    ->name('admin.')          // Nama route jadi: admin.game.index
+    ->middleware(['auth', 'admin'])    // Wajib Login
+    ->group(function () {
+        
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('dashboard');
+
+        // CRUD Game
+        // Karena pakai alias di atas, panggilnya AdminGameController
+        Route::resource('game', AdminGameController::class);
+        
+        // CRUD Produk
+        Route::resource('produk', AdminProductController::class);
+    });
 
 // Route Profile (Breeze default)
 Route::middleware('auth')->group(function () {
@@ -36,5 +61,7 @@ Route::middleware('auth')->group(function () {
 
 // Route Detail Game (Integrasi Database)
 Route::get('/game/{slug}', [OrderController::class, 'show'])->name('order.show');
+Route::resource('/game', GameController::class);
+Route::resource('/produk', ProdukController::class);
 
 require __DIR__.'/auth.php';

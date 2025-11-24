@@ -29,7 +29,7 @@
         {{-- ========================================== --}}
         {{-- 3. TAG KATEGORI (Statis / Hiasan) --}}
         {{-- ========================================== --}}
-        <section class="mb-10 overflow-x-auto">
+        {{-- <section class="mb-10 overflow-x-auto">
             <div class="flex flex-nowrap md:flex-wrap gap-2 md:gap-3 pb-2">
                 <a href="#"
                     class="whitespace-nowrap rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition-colors duration-200 bg-yellow-400 text-gray-900">
@@ -48,7 +48,7 @@
                     Pulsa & Data
                 </a>
             </div>
-        </section>
+        </section> --}}
 
 
         {{-- ========================================== --}}
@@ -105,12 +105,12 @@
         {{-- ========================================== --}}
         {{-- 5. TOMBOL TAMPILKAN LAINNYA --}}
         {{-- ========================================== --}}
-        <div class="flex justify-center mt-10">
+        {{-- <div class="flex justify-center mt-10">
             <button
                 class="bg-[#3A3B3F] text-yellow-400 font-semibold py-2 px-6 rounded-full text-sm hover:bg-gray-700 transition-colors">
                 Tampilkan Lainnya...
             </button>
-        </div>
+        </div> --}}
 
     </div> {{-- End Container --}}
 
@@ -127,7 +127,7 @@
                     d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" />
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 8V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2" />
             </svg>
-            <span>CS</span>
+            <span>Customers Service</span>
         </a>
     </div>
 @endsection
