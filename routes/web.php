@@ -29,6 +29,45 @@ Route::get('/', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::prefix('admin')        // URL awalan: /admin/...
+    ->name('admin.')          // Nama route awalan: admin....
+    ->middleware(['auth', 'admin']) // Middleware cek login & role admin
+    ->group(function () {
+
+        // 1. Dashboard
+        Route::get('/dashboard', function () {
+            $totalGames = Game::count();
+            $totalProducts = Product::count();
+
+            return view('admin.dashboard', compact('totalGames', 'totalProducts'));
+        })->name('dashboard');
+
+        // 2. CRUD Game (admin.game.index, admin.game.store, dll)
+        Route::resource('game', AdminGameController::class);
+
+        // 3. CRUD Produk (admin.produk.index, admin.produk.store, dll)
+        Route::resource('produk', AdminProductController::class);
+
+        // 4. UPDATE TRANSAKSI (Ini yang sebelumnya kurang)
+        // URL: /admin/transaksi/update/{id}
+        // Nama Route: admin.transaksi.update
+        // Method: POST (Sesuai form di blade Anda)
+        Route::post('/transaksi/update/{id}', [TransactionController::class, 'update'])
+            ->name('transaction.update');
+
+        // 4. TRANSAKSI
+        // a. Route untuk Melihat Daftar Transaksi (Mengatasi Not Found)
+        // Pastikan di AdminController ada function bernama 'index' atau sesuaikan namanya
+        Route::get('/transaksi', [AdminTransactionController::class, 'index'])
+            ->name('transaksi.index');
+
+        // b. Route untuk Update Status Transaksi
+        Route::post('/transaksi/update/{id}', [AdminTransactionController::class, 'update'])
+            ->name('transaksi.update');
+            
+    });
+
+     
 
 // 3. PROFILE USER (Breeze)
 Route::middleware('auth')->group(function () {

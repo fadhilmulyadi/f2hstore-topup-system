@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <a href="{{ route('game.index') }}" class="flex items-center text-gray-500 hover:text-gray-700 mb-6 transition-colors">
+    <a href="{{ route('admin.game.index') }}" class="flex items-center text-gray-500 hover:text-gray-700 mb-6 transition-colors">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         Kembali ke Daftar Game
     </a>
@@ -12,7 +12,7 @@
     <div class="bg-white rounded-2xl shadow-lg shadow-gray-100/50 p-8 border border-gray-100">
         <h3 class="text-xl font-bold text-gray-800 mb-6">Informasi Game</h3>
         
-        <form action="{{ route('game.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <form action="{{ route('admin.game.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
