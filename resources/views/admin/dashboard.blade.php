@@ -69,6 +69,15 @@
         <div class="bg-white rounded-2xl p-6 shadow-lg shadow-gray-100/50 border border-gray-100">
             <h3 class="text-lg font-bold text-gray-800 mb-4">Akses Cepat</h3>
             <div class="space-y-3">
+                
+                {{-- TOMBOL BARU: Cek Transaksi --}}
+                <a href="{{ route('admin.transaksi.index') }}" class="block w-full p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium text-gray-700 group-hover:text-indigo-700">Cek Pesanan / Transaksi</span>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+
                 <a href="{{ route('admin.game.index') }}" class="block w-full p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all group">
                     <div class="flex items-center justify-between">
                         <span class="font-medium text-gray-700 group-hover:text-indigo-700">Kelola Daftar Game</span>

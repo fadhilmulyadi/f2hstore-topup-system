@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Services\FonnteService; 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log; // Import Log untuk debugging jika WA gagal
 
 class TransactionController extends Controller
 {
@@ -14,65 +15,62 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        // Ambil transaksi urut terbaru, load relasi user & product biar tidak berat
+        // Ambil transaksi urut terbaru
         $transactions = Transaction::with(['user', 'product.game'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10); // Tampilkan 10 per halaman
+            ->latest() // Shortcut untuk orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        return view('admin.transaction.index', compact('transactions'));
+        return view('admin.transaksi.index', compact('transactions'));
     }
 
     /**
-     * Update status transaksi (Pending -> Success/Failed)
-     * Ini tombol pemicu Bot WhatsApp!
+     * Update status transaksi menjadi SUCCESS & Kirim WA
      */
     public function update(Request $request, string $id)
     {
-        $transaction = Transaction::with(['user', 'product'])->findOrFail($id);
+        // 1. Cari Transaksi
+        $transaction = Transaction::findOrFail($id);
 
-        // Validasi input status dari form admin
-        $request->validate([
-            'status' => 'required|in:pending,processing,success,failed'
-        ]);
-
+        // 2. Simpan Status Lama (Penting untuk pengecekan agar tidak kirim WA double)
         $oldStatus = $transaction->status;
 
-        // Simpan status baru ke database
-        $transaction->update([
-            'status' => $request->status
-        ]);
+        // 3. Update Status Baru ke Database
+        // Karena tombol di blade Anda khusus "Set Success", kita hardcode 'SUCCESS'
+        $transaction->update(['status' => 'SUCCESS']);
 
-        // --- LOGIKA BOT WHATSAPP ---
-        // Kirim notifikasi HANYA JIKA status berubah jadi 'success'
-        if ($request->status == 'success' && $oldStatus != 'success') {
+        // 4. LOGIKA BOT WHATSAPP
+        // Cek: Jika status lama BUKAN 'SUCCESS' (berarti baru saja berubah jadi success)
+        if ($oldStatus !== 'SUCCESS') {
 
-            // Ambil nomor HP user
-            $userPhone = $transaction->user->phone;
+            // Gunakan optional() untuk menghindari error jika user/produk sudah terhapus
+            $userPhone = optional($transaction->user)->phone;
 
             if ($userPhone) {
-                $userName = $transaction->user->name;
-                $productName = $transaction->product ? $transaction->product->name : 'Produk';
-                $targetAccount = $transaction->target_account;
-                $invoice = $transaction->payment_token;
+                $userName = optional($transaction->user)->name ?? 'Pelanggan';
+                $productName = optional($transaction->product)->name ?? 'Produk';
+                $targetAccount = $transaction->target_account ?? '-';
+                $invoice = $transaction->id; // Atau $transaction->payment_token jika ada
 
                 // Format Pesan WhatsApp
                 $pesan = "Halo kak *$userName*! 👋\n\n" .
                     "✅ Top Up *$productName* kamu BERHASIL!\n\n" .
                     "🆔 ID Tujuan: $targetAccount\n" .
-                    "🧾 No. Invoice: $invoice\n\n" .
+                    "🧾 No. Invoice: #$invoice\n\n" .
                     "Terima kasih sudah belanja di F2H Store! ⭐";
 
-                // Kirim Pesan via Fonnte
+                // Kirim Pesan via Fonnte dalam Try-Catch
                 try {
+                    // Pastikan class FonnteService sudah benar
                     FonnteService::sendWhatsApp($userPhone, $pesan);
+                    
                 } catch (\Exception $e) {
-                    // Jika gagal kirim WA, biarkan saja agar tidak error di web admin
-                    // Bisa tambahkan Log::error($e) jika mau
+                    // Log error tapi JANGAN hentikan proses redirect
+                    Log::error("Gagal kirim WA ke $userPhone: " . $e->getMessage());
                 }
             }
         }
-        // ---------------------------
 
-        return redirect()->back()->with('success', 'Status transaksi diperbarui! Notifikasi WA dikirim (jika sukses).');
+        // 5. Redirect SETELAH semua proses selesai
+        return redirect()->back()->with('success', 'Status berhasil diubah menjadi SUCCESS & Notifikasi WA dikirim (jika nomor valid).');
     }
 }
