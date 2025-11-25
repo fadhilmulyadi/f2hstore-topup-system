@@ -32,21 +32,33 @@ class GameController extends Controller
     {
         $request->validate([
             'name'      => 'required|string|max:255',
-            'slug'      => 'required|string|unique:games,slug|max:255',
-            'thumbnail' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status'    => 'nullable',
         ]);
 
-        // Upload Thumbnail ke folder 'thumbnails' sesuai seeder
-        $path = null;
+        // LOGIKA BARU: Simpan langsung ke public/images/hero
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('thumbnails', 'public');
+            $file = $request->file('thumbnail');
+            // Buat nama file unik
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            // Pindahkan file ke folder public/images/hero
+            $file->move(public_path('images/hero'), $fileName);
+            // Path yang disimpan di database
+            $thumbnailPath = 'images/hero/' . $fileName;
         }
 
-        Game::create([
+        $game = Game::create([
             'name'      => $request->name,
-            'slug'      => $request->slug,
-            'thumbnail' => $path,
+            'slug'      => $request->slug ?? Str::slug($request->name),
+            'thumbnail' => $thumbnailPath, 
+            'status'    => $request->status ?? 1,
         ]);
+
+        response()->json([
+            'success' => true,
+            'message' => 'Game created successfully',
+            'data'    => $game
+        ], 201);
 
         return redirect()->route('admin.game.index')->with('success', 'Game berhasil ditambahkan!');
     }

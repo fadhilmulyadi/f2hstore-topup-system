@@ -18,10 +18,15 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 // 1. HALAMAN HOME
 Route::get('/', function () {
-    // Ambil data game dari database untuk ditampilkan di Home
-    $games = \App\Models\Game::take(8)->get();
-    // Sesuaikan dengan nama folder view Agil
-    return view('user.topup.index', compact('games'));
+    // 1. Ambil data game dari database
+    // orderBy('created_at', 'desc') -> Agar game yang baru diinput muncul paling atas/depan
+    // where('status', 1) -> Opsional: Jika ingin menampilkan yang statusnya aktif saja
+    
+    $games = Game::orderBy('created_at', 'asc')->get(); 
+
+    // 2. Kirim data $games ke view
+    // Ganti 'welcome' dengan nama file blade halaman depan kamu (misal: 'home' atau 'index')
+    return view('user.topup.index', compact('games')); 
 });
 
 // // 2. DASHBOARD USER (Breeze)

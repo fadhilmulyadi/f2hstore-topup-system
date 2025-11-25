@@ -31,7 +31,7 @@
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
-                                <img class="h-12 w-12 rounded-lg object-cover shadow-sm border border-gray-200" src="{{ asset('storage/'.$game->logo) }}" alt="">
+                                <img class="h-12 w-12 rounded-lg object-cover shadow-sm border border-gray-200" src="{{ asset(''.$game->thumbnail) }}" alt="">
                                 <span class="font-semibold text-gray-700">{{ $game->nama_game }}</span>
                             </div>
                         </td>

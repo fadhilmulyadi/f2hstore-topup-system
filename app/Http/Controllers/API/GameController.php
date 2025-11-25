@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File; // Ganti Storage dengan File untuk manajemen file di public
 
 class GameController extends Controller
 {
@@ -26,14 +26,25 @@ class GameController extends Controller
         $request->validate([
             'name'      => 'required|string|max:255',
             'thumbnail' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status'    => 'nullable',
         ]);
 
-        $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+        // LOGIKA BARU: Simpan langsung ke public/images/hero
+        if ($request->hasFile('thumbnail')) {
+            $file = $request->file('thumbnail');
+            // Buat nama file unik
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            // Pindahkan file ke folder public/images/hero
+            $file->move(public_path('images/hero'), $fileName);
+            // Path yang disimpan di database
+            $thumbnailPath = 'images/hero/' . $fileName;
+        }
 
         $game = Game::create([
             'name'      => $request->name,
-            'slug'      => Str::slug($request->name),
-            'thumbnail' => $thumbnailPath,
+            'slug'      => $request->slug ?? Str::slug($request->name),
+            'thumbnail' => $thumbnailPath, 
+            'status'    => $request->status ?? 1,
         ]);
 
         return response()->json([
@@ -43,34 +54,14 @@ class GameController extends Controller
         ], 201);
     }
 
-    // public function show(string $id)
-    // {
-    //     $game = Game::find($id);
-
-    //     if (!$game) {
-    //         return response()->json(['message' => 'Game not found'], 404);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data'    => $game
-    //     ]);
-    // }
-
     public function show($slug)
-{
-    // // Cek 1: Apakah route berhasil masuk sini?
-    // dd($slug); // <--- Hapus komentar (//) di depan dd ini lalu refresh browser.
-    //             //  Jika browser menampilkan layar hitam bertuliskan "mobile-legends", 
-    //             //  berarti Route AMAN. Masalahnya ada di Database.
-
-    // Cek 2: Query Database
-    $game = Game::where('slug', $slug)->with('products')->firstOrFail();
-    
-    return view('user.topup.show', [
-        'game' => $game
-    ]);
-}
+    {
+        $game = Game::where('slug', $slug)->with('products')->firstOrFail();
+        
+        return view('user.topup.show', [
+            'game' => $game
+        ]);
+    }
 
     public function update(Request $request, string $id)
     {
@@ -86,15 +77,27 @@ class GameController extends Controller
         ]);
 
         if ($request->hasFile('thumbnail')) {
-            if ($game->thumbnail && Storage::disk('public')->exists($game->thumbnail)) {
-                Storage::disk('public')->delete($game->thumbnail);
+            // Hapus gambar lama di folder public jika ada
+            $oldPath = public_path($game->thumbnail);
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
             }
-            $game->thumbnail = $request->file('thumbnail')->store('thumbnails', 'public');
+            
+            // Upload gambar baru ke public/images/hero
+            $file = $request->file('thumbnail');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/hero'), $fileName);
+            
+            $game->thumbnail = 'images/hero/' . $fileName;
         }
 
         if ($request->name) {
             $game->name = $request->name;
             $game->slug = Str::slug($request->name);
+        }
+
+        if ($request->has('status')) {
+            $game->status = $request->status;
         }
 
         $game->save();
@@ -114,8 +117,12 @@ class GameController extends Controller
             return response()->json(['message' => 'Game not found'], 404);
         }
 
-        if ($game->thumbnail && Storage::disk('public')->exists($game->thumbnail)) {
-            Storage::disk('public')->delete($game->thumbnail);
+        // Hapus file fisik di folder public
+        if ($game->thumbnail) {
+            $path = public_path($game->thumbnail);
+            if (File::exists($path)) {
+                File::delete($path);
+            }
         }
 
         $game->delete();

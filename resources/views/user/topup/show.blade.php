@@ -12,10 +12,12 @@
             
             {{-- KOLOM KIRI: GAMBAR GAME --}}
             <div class="lg:col-span-4 xl:col-span-3">
-                {{-- Menggunakan komponen game-card atau manual --}}
+    {{-- Menggunakan komponen game-card atau manual --}}
                 <div class="bg-[#27272a] rounded-3xl p-4 border border-gray-700/50 shadow-xl sticky top-24">
-                    <img src="{{ asset('storage/' . $game->thumbnail) }}" alt="{{ $game->name }}" 
-                         class="w-full aspect-[3/4] object-cover rounded-2xl mb-4 shadow-lg">
+                    
+                    <img src="{{ asset('' . $game->thumbnail) }}" alt="{{ $game->name }}" 
+                        class="w-full h-auto rounded-2xl mb-4 shadow-lg">
+                        
                     <h2 class="text-2xl font-bold text-white text-center mb-1">{{ $game->name }}</h2>
                     <p class="text-center text-yellow-400 text-sm font-medium">Official Partner</p>
                 </div>
