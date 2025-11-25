@@ -30,7 +30,7 @@ class GameSeeder extends Seeder
         $mlbb = Game::create([
             'name' => 'Mobile Legends',
             'slug' => 'mobile-legends',
-            'thumbnail' => 'thumbnails/mlbb.jpg',
+            'thumbnail' => 'images/hero/mlbb.jpg',
         ]);
 
         $mlbb->products()->createMany([
@@ -45,7 +45,7 @@ class GameSeeder extends Seeder
         $joki = Game::create([
             'name' => 'Joki Rank Mobile Legends',
             'slug' => 'joki-rank-ml',
-            'thumbnail' => 'thumbnails/joki-ml.jpg',
+            'thumbnail' => 'images/hero/joki-ml.jpg',
         ]);
 
         $joki->products()->createMany([
@@ -60,7 +60,7 @@ class GameSeeder extends Seeder
         $mabar = Game::create([
             'name' => 'Jasa Mabar Push',
             'slug' => 'jasa-mabar-push',
-            'thumbnail' => 'thumbnails/mabar-push.jpg',
+            'thumbnail' => 'images/hero/mabar-push.jpg',
         ]);
 
         $mabar->products()->createMany([
@@ -74,7 +74,7 @@ class GameSeeder extends Seeder
         $roblox = Game::create([
             'name' => 'Roblox',
             'slug' => 'roblox',
-            'thumbnail' => 'thumbnails/roblox.jpg',
+            'thumbnail' => 'images/hero/roblox.jpg',
         ]);
 
         $roblox->products()->createMany([
@@ -89,7 +89,7 @@ class GameSeeder extends Seeder
         $casual = Game::create([
             'name' => 'Jasa Mabar Casual',
             'slug' => 'mabar-casual',
-            'thumbnail' => 'thumbnails/mabar-casual.jpg',
+            'thumbnail' => 'images/hero/mabar-casual.jpg',
         ]);
 
         $casual->products()->createMany([
@@ -103,7 +103,7 @@ class GameSeeder extends Seeder
         $ff = Game::create([
             'name' => 'Free Fire',
             'slug' => 'free-fire',
-            'thumbnail' => 'thumbnails/ff.jpg',
+            'thumbnail' => 'images/hero/ff.jpg',
         ]);
 
         $ff->products()->createMany([
@@ -118,7 +118,7 @@ class GameSeeder extends Seeder
         $pubg = Game::create([
             'name' => 'PUBG Mobile',
             'slug' => 'pubg-mobile',
-            'thumbnail' => 'thumbnails/pubg.jpg',
+            'thumbnail' => 'images/hero/pubg.jpg',
         ]);
 
         $pubg->products()->createMany([
@@ -133,7 +133,7 @@ class GameSeeder extends Seeder
         $hok = Game::create([
             'name' => 'Honor Of Kings',
             'slug' => 'honor-of-kings',
-            'thumbnail' => 'thumbnails/hok.jpg',
+            'thumbnail' => 'images/hero/hok.jpg',
         ]);
 
         $hok->products()->createMany([

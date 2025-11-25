@@ -68,7 +68,7 @@
 
                         <div class="relative h-40 overflow-hidden">
                             {{-- GAMBAR DARI STORAGE --}}
-                            <img src="{{ asset('storage/' . $game->thumbnail) }}" alt="{{ $game->name }}"
+                            <img src="{{ asset('' . $game->thumbnail) }}" alt="{{ $game->name }}"
                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 onerror="this.src='https://placehold.co/300x300/333/FFF?text={{ urlencode($game->name) }}'">
 
@@ -118,7 +118,7 @@
     {{-- ========================================== --}}
     {{-- 6. FLOATING CUSTOMER SERVICE --}}
     {{-- ========================================== --}}
-    <div class="fixed bottom-6 right-6 z-50">
+    {{-- <div class="fixed bottom-6 right-6 z-50">
         <a href="#"
             class="bg-yellow-400 text-gray-900 font-bold py-2.5 px-5 rounded-lg flex items-center space-x-2 shadow-lg hover:bg-yellow-300 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -129,5 +129,5 @@
             </svg>
             <span>Customers Service</span>
         </a>
-    </div>
+    </div> --}}
 @endsection

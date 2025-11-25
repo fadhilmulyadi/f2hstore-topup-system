@@ -74,12 +74,21 @@
                                 Sesuaikan 'usertype' dengan nama kolom di database Anda (misal: 'role', 'is_admin', dll).
                                 Sesuaikan 'admin' dengan value untuk admin.
                             --}}
-                            @if(Auth::user()->role === 'admin') 
-                                <a href="{{ route('dashboard') }}" class="text-yellow-400 hover:text-yellow-300 text-sm font-bold transition-colors">
-                                    Dashboard
-                                </a>
+                            @if(Auth::user()->role === 'admin')
+                                {{-- Cek apakah URL saat ini mengandung kata 'admin' --}}
+                                @if(request()->is('admin*'))
+                                    {{-- Jika sedang di Admin Panel, tombol mengarah ke '/' (Index) --}}
+                                    <a href="{{ url('/') }}" class="text-yellow-400 hover:text-yellow-300 text-sm font-bold transition-colors">
+                                        &larr; Kembali ke Website
+                                    </a>
+                                @else
+                                    {{-- Jika sedang di Website Utama, tombol mengarah ke 'admin/dashboard' --}}
+                                    {{-- Pastikan route 'admin.dashboard' sudah didefinisikan di web.php, atau ganti href dengan url('/admin/dashboard') --}}
+                                    <a href="{{ route('admin.dashboard') }}" class="text-yellow-400 hover:text-yellow-300 text-sm font-bold transition-colors">
+                                        Dashboard Admin
+                                    </a>
+                                @endif
                             @endif
-
                             {{-- Tombol Logout (Wajib Form method POST) --}}
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
