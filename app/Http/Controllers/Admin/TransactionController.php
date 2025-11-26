@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
-use App\Services\FonnteService; 
+use App\Services\FonnteService; // <-- Wajib Import Service WA
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log; // Import Log untuk debugging jika WA gagal
 
 class TransactionController extends Controller
 {
@@ -15,62 +14,80 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        // Ambil transaksi urut terbaru
+        // Ambil data transaksi urut dari yang terbaru
         $transactions = Transaction::with(['user', 'product.game'])
-            ->latest() // Shortcut untuk orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return view('admin.transaksi.index', compact('transactions'));
     }
 
     /**
-     * Update status transaksi menjadi SUCCESS & Kirim WA
+     * Update status transaksi (Pending -> Success)
+     * INI LOGIKA UTAMA YANG DIMINTA AGIL
      */
     public function update(Request $request, string $id)
     {
         // 1. Cari Transaksi
-        $transaction = Transaction::findOrFail($id);
+        $transaction = Transaction::with(['user', 'product'])->findOrFail($id);
 
-        // 2. Simpan Status Lama (Penting untuk pengecekan agar tidak kirim WA double)
+        // 2. Validasi Input (Harus salah satu status yang valid)
+        $request->validate([
+            'status' => 'required|in:pending,processing,success,failed'
+        ]);
+
+        // Simpan status lama untuk pengecekan
         $oldStatus = $transaction->status;
 
         // 3. Update Status Baru ke Database
-        // Karena tombol di blade Anda khusus "Set Success", kita hardcode 'SUCCESS'
-        $transaction->update(['status' => 'SUCCESS']);
+        $transaction->update([
+            'status' => $request->status
+        ]);
 
-        // 4. LOGIKA BOT WHATSAPP
-        // Cek: Jika status lama BUKAN 'SUCCESS' (berarti baru saja berubah jadi success)
-        if ($oldStatus !== 'SUCCESS') {
+        // ==================================================
+        // 🔥 LOGIKA BOT WHATSAPP (AUTO SEND) 🔥
+        // ==================================================
+        // Syarat kirim WA:
+        // 1. Status baru harus 'success'
+        // 2. Status lama BUKAN 'success' (supaya tidak kirim double kalau di-refresh)
 
-            // Gunakan optional() untuk menghindari error jika user/produk sudah terhapus
-            $userPhone = optional($transaction->user)->phone;
+        if ($request->status == 'success' && $oldStatus != 'success') {
 
+            // Ambil nomor HP user dari relasi
+            $userPhone = $transaction->user->phone;
+
+            // Pastikan user punya nomor HP
             if ($userPhone) {
-                $userName = optional($transaction->user)->name ?? 'Pelanggan';
-                $productName = optional($transaction->product)->name ?? 'Produk';
-                $targetAccount = $transaction->target_account ?? '-';
-                $invoice = $transaction->id; // Atau $transaction->payment_token jika ada
+                // Siapkan Data Pesan
+                $userName = $transaction->user->name;
+                $productName = $transaction->product ? $transaction->product->name : 'Produk';
+                $targetAccount = $transaction->target_account;
+                $invoice = $transaction->payment_token;
+                $price = number_format($transaction->total_price, 0, ',', '.');
 
-                // Format Pesan WhatsApp
+                // Format Pesan WhatsApp yang Rapi
                 $pesan = "Halo kak *$userName*! 👋\n\n" .
-                    "✅ Top Up *$productName* kamu BERHASIL!\n\n" .
+                    "✅ *Top Up BERHASIL!*\n" .
+                    "--------------------------------\n" .
+                    "📦 Produk: *$productName*\n" .
                     "🆔 ID Tujuan: $targetAccount\n" .
-                    "🧾 No. Invoice: #$invoice\n\n" .
-                    "Terima kasih sudah belanja di F2H Store! ⭐";
+                    "💰 Nominal: Rp $price\n" .
+                    "🧾 No. Invoice: $invoice\n" .
+                    "--------------------------------\n\n" .
+                    "Terima kasih sudah belanja di F2H Store! ⭐\n" .
+                    "Simpan bukti ini jika ada kendala.";
 
-                // Kirim Pesan via Fonnte dalam Try-Catch
+                // Panggil Service Fonnte untuk kirim pesan
                 try {
-                    // Pastikan class FonnteService sudah benar
                     FonnteService::sendWhatsApp($userPhone, $pesan);
-                    
                 } catch (\Exception $e) {
-                    // Log error tapi JANGAN hentikan proses redirect
-                    Log::error("Gagal kirim WA ke $userPhone: " . $e->getMessage());
+                    // Kalau error (misal internet mati), biarkan saja (Silent Fail)
+                    // Agar halaman admin tidak crash
                 }
             }
         }
+        // ==================================================
 
-        // 5. Redirect SETELAH semua proses selesai
-        return redirect()->back()->with('success', 'Status berhasil diubah menjadi SUCCESS & Notifikasi WA dikirim (jika nomor valid).');
+        return redirect()->back()->with('success', 'Status transaksi diperbarui!');
     }
 }

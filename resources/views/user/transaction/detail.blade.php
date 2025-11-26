@@ -83,7 +83,6 @@
             {{-- Action Buttons --}}
             <div class="space-y-3">
 
-                {{-- GANTI NOMOR WA ADMIN DI BAWAH INI (Cari '628...') --}}
                 <a href="https://wa.me/6282189131704?text=Halo%20Admin,%20saya%20ingin%20konfirmasi%20pembayaran%20untuk%20Invoice%20{{ $transaction->payment_token }}%20sebesar%20Rp%20{{ number_format($transaction->total_price, 0, ',', '.') }}"
                     target="_blank"
                     class="flex items-center justify-center w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-green-600/20 group">

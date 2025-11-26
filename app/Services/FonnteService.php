@@ -6,33 +6,37 @@ use Illuminate\Support\Facades\Http;
 
 class FonnteService
 {
-    /**
-     * Kirim pesan WhatsApp via Fonnte
-     *
-     * @param string $target Nomor HP Tujuan (08xx atau 62xx)
-     * @param string $message Isi Pesan
-     */
     public static function sendWhatsApp(string $target, string $message)
     {
-        // Ambil token dari .env (Pastikan Anda sudah tambah FONNTE_TOKEN=... di .env)
         $token = env('FONNTE_TOKEN');
 
+        // DEBUG 1: Cek Token
         if (!$token) {
-            return false; // Token belum diisi, skip kirim WA
+            dump("ERROR: Token Fonnte KOSONG di .env!");
+            return false;
         }
 
         try {
-            $response = Http::withHeaders([
+            // PERBAIKAN: Tambahkan withoutVerifying() untuk bypass error SSL cURL 77
+            $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => $token,
             ])->post('https://api.fonnte.com/send', [
-                'target' => $target,
-                'message' => $message,
-                'countryCode' => '62', // Otomatis ubah 08 jadi 62
-            ]);
+                        'target' => $target,
+                        'message' => $message,
+                        'countryCode' => '62',
+                    ]);
+
+            // DEBUG 2: Cek Balasan Fonnte
+            if ($response->failed()) {
+                dump("Gagal Kirim ke Fonnte: " . $response->body());
+            } else {
+                dump("Sukses Fonnte: " . $response->body());
+            }
 
             return $response->json();
         } catch (\Exception $e) {
-            // Jika gagal (misal tidak ada internet), jangan bikin error aplikasi
+            // DEBUG 3: Cek Koneksi Internet/Error Lain
+            dump("Exception Error: " . $e->getMessage());
             return false;
         }
     }
